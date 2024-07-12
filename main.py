@@ -15,12 +15,12 @@ from auth import setup_authenticator
 @st.cache_data
 def retrieve_data_cedar():
     #st.write("Retrieving data now...")
-    try:
-        g = Graph()
-        g.parse('mock_data.ttl')
-        return g
-    except FileNotFoundError:
-        print("No existing file discovered. Starting data import from CEDAR..")
+    #try:
+    #    g = Graph()
+    #    g.parse('mock_data.ttl')
+    #    return g
+    #except FileNotFoundError:
+    #    print("No existing file discovered. Starting data import from CEDAR..")
     
     cedar_api_key = st.secrets["authkey_RENS"]
     #with open('../.secrets.json') as secrets:
@@ -35,6 +35,7 @@ def retrieve_data_cedar():
 
     # Make an RDFlib Graph on which we can query for the dashboard
     g = Graph()
+    g.parse('mock_data.ttl') # ADD IN THE MOCK DATA
     patients = [] # Keep track of which patients have been added to the graph
 
     # Request each instance individually and add it to the graph
@@ -80,8 +81,8 @@ def retrieve_data_cedar():
 
         print(f'Finished import instance {i+1}/{N}')#, end='\r')
 
-    g.serialize(format='ttl', destination='mock_data.ttl')
-    print('Completed.\n\n')
+    #g.serialize(format='ttl', destination='mock_data.ttl')
+    #print('Completed.\n\n')
 
     return g
 

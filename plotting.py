@@ -21,7 +21,6 @@ def process_simple_query(graph, query_string):
     return res
 
     
-
 def plot_bp(g, atts_to_plot):
     query_str = f"""
         PREFIX pghdc: <https://github.com/RenVit318/pghd/tree/main/src/vocab/pghd_connect/>
@@ -131,13 +130,23 @@ def plot_bp(g, atts_to_plot):
                      })
 
 
+# TODO: FILL THESE OUT
+def plot_fitbit_heartrate(g, plot_attrs):
+    pass
+
+def plot_fitbit_steps(g, plot_attrs):
+    pass
+
+def plot_fitbit_activity(g, plot_attrs):
+    pass
+
+def plot_fitbit_sleep(g, plot_attrs):
+    pass
+
+
+
 
 def plot_fitbit(g, plot_attrs):
-    st.write('Plot fitbit stuff here..')
-    fig = plt.figure()
-
-    st.pyplot(fig)
-
 ## help me uppdate this for the fitbit stuff
     query_str = """
         PREFIX pghdc: <https://github.com/RenVit318/pghd/tree/main/src/vocab/pghd_connect/>
