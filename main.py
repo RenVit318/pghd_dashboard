@@ -22,8 +22,9 @@ def retrieve_data_cedar():
     except FileNotFoundError:
         print("No existing file discovered. Starting data import from CEDAR..")
     
-    with open('../.secrets.json') as secrets:
-        cedar_api_key = json.load(secrets)["authkey_RENS"]
+    cedar_api_key = st.secrets["authkey_RENS"]
+    #with open('../.secrets.json') as secrets:
+    #    cedar_api_key = json.load(secrets)["authkey_RENS"]
 
     # Right now, we get the URIs of all instances in the mock_data folder and then separately query and parse each file
     # Is there a more efficient method to do this? e.g. query all contents within a folder at the same time with /folders/{folder_id}/contents_extract ???
@@ -101,6 +102,7 @@ def get_patient_list(g):
         patients.append(row.id.value)
     return patients
 
+
 def setup_sidebar(patients):
     plot_attrs = {}
 
@@ -126,13 +128,10 @@ def setup_sidebar(patients):
     return plot_attrs
 
 
-
-
 def main(): 
     authenticator = setup_authenticator()
     name, authentication_status, username = authenticator.login(location='main')
 
-    set_styles()
 
     if st.session_state["authentication_status"] is False:
         st.error('Username/password is incorrect')
@@ -142,7 +141,6 @@ def main():
         authenticator.logout()
         st.write(f'Welcome *{st.session_state["name"]}* to the PGHD dashboard')
 
-    
         # Go into the true content
         g = retrieve_data_cedar()
         patients = get_patient_list(g)
