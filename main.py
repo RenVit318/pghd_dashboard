@@ -28,7 +28,10 @@ def retrieve_data_cedar():
 
     # Right now, we get the URIs of all instances in the mock_data folder and then separately query and parse each file
     # Is there a more efficient method to do this? e.g. query all contents within a folder at the same time with /folders/{folder_id}/contents_extract ???
-    url = "https://resource.metadatacenter.org/folders/https%3A%2F%2Frepo.metadatacenter.org%2Ffolders%2F422ba135-4215-433a-b2d2-1d9a3fee7317/contents" 
+
+    get_url = "https://resource.metadatacenter.org/folders/" 
+    folder_id = "https://repo.metadatacenter.org/folders/b451e291-0a49-4d5c-a626-933043006eae" 
+    url = get_url + parse.quote_plus(folder_id) + '/contents' 
     headers = {"accept": "application/json", "authorization": cedar_api_key}
     response = requests.get(url, headers=headers)
     response = response.json()
@@ -145,7 +148,6 @@ def main():
         # Go into the true content
         g = retrieve_data_cedar()
         patients = get_patient_list(g)
-        patients.append('0000')
 
         plot_attrs = setup_sidebar(patients)
         st.write(f"You are now looking at the data of Patient {plot_attrs['patient']}")

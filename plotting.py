@@ -1,4 +1,3 @@
-
 import streamlit as st
 import streamlit.components.v1 as components
 from datetime import date, timedelta
@@ -114,20 +113,20 @@ def plot_bp(g, atts_to_plot):
 
 
     # Show the data in a table
-    show_data = st.checkbox("Click here to view the data")
-    if show_data: 
-        #df = pd.DataFrame(data)
-        st.dataframe(data, 
-                     use_container_width=True, hide_index=True,
-                     column_config={
-                        "date": "Date",
-                        "pulse": "Pulse Rate",
-                        "sys_bp": "Systolic BP",
-                        "dia_bp": "Diastolic BP",
-                        "loc": "Location",
-                        "person": "Person",
-                        "pos": "Position"
-                     })
+    #show_data = st.checkbox("Click here to view the data")
+    #if show_data: 
+    #    #df = pd.DataFrame(data)
+    #    st.dataframe(data, 
+    #                 use_container_width=True, hide_index=True,
+    #                 column_config={
+    #                    "date": "Date",
+    #                    "pulse": "Pulse Rate",
+    #                    "sys_bp": "Systolic BP",
+    #                    "dia_bp": "Diastolic BP",
+    #                    "loc": "Location",
+    #                    "person": "Person",
+    #                    "pos": "Position"
+    #                 })
 
 
 # TODO: FILL THESE OUT

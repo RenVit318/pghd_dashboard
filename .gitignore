@@ -156,6 +156,7 @@ cython_debug/
 
 # Custom gitignore
 .secrets.json
+.streamlit/secrets.toml
 
 # PyCharm
 #  JetBrains specific template is maintained in a separate JetBrains.gitignore that can
