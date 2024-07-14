@@ -7,7 +7,7 @@ from rdflib.plugins.sparql import prepareQuery
 from rdflib import Namespace
 import streamlit as st
 
-from plotting import plot_bp, plot_fitbit
+from plotting import *
 from auth import setup_authenticator
 
 
@@ -156,13 +156,13 @@ def main():
 
         # Fitbit plotter handlers - separated out because of the different orders of magnitude
         if plot_attrs["rest_heartrate"]:
-            plot_fitbit(g, plot_attrs) 
+            plot_fitbit_heartrate(g, plot_attrs) 
         if plot_attrs["activity"]:
-            plot_fitbit(g, plot_attrs)     
+            plot_fitbit_activity(g, plot_attrs)     
         if plot_attrs["steps_count"]:
-            plot_fitbit(g, plot_attrs) 
+            plot_fitbit_steps(g, plot_attrs) 
         if plot_attrs["sleep_data"]:
-            plot_fitbit(g, plot_attrs)     
+            plot_fitbit_sleep(g, plot_attrs)     
 
 
 

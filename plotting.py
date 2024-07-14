@@ -4,6 +4,8 @@ from datetime import date, timedelta
 
 import numpy as np
 import plotly.express as px
+from plotly.subplots import make_subplots
+import plotly.graph_objects as go
 import pandas as pd
 from datetime import date
 
@@ -20,7 +22,7 @@ def process_simple_query(graph, query_string):
     return res
 
     
-def plot_bp(g, atts_to_plot):
+def plot_bp(g, plot_attrs):
     query_str = f"""
         PREFIX pghdc: <https://github.com/RenVit318/pghd/tree/main/src/vocab/pghd_connect/>
         PREFIX bp_aux: <https://github.com/RenVit318/pghd/tree/main/src/vocab/auxillary_info/>
@@ -32,7 +34,7 @@ def plot_bp(g, atts_to_plot):
         WHERE {{
             ?y pghdc:patient ?x ;
                pghdc:collected_PGHD ?z . 
-            ?x pghdc:patientID '{atts_to_plot['patient']}'^^xsd:int .
+            ?x pghdc:patientID '{plot_attrs['patient']}'^^xsd:int .
             ?z smash:hasSystolicBloodPressureValue ?sys_bp ;
                smash:hasDiastolicBloodPressureValue ?dia_bp ;
                smash:hasPulseRate ?pulse ;
@@ -87,11 +89,11 @@ def plot_bp(g, atts_to_plot):
 
     # Plotting
     ydata = []
-    if atts_to_plot['pulse']:
+    if plot_attrs['pulse']:
         ydata.append('pulse')
-    if atts_to_plot['sys_bp']:
+    if plot_attrs['sys_bp']:
         ydata.append('sys_bp')
-    if atts_to_plot['dia_bp']:
+    if plot_attrs['dia_bp']:
         ydata.append('dia_bp')
 
     if len(ydata) > 0:
@@ -108,6 +110,10 @@ def plot_bp(g, atts_to_plot):
                 "Position: %{customdata[2]}",
             ])
         )
+
+        fig.update_xaxes(title_text="Date")
+        fig.update_yaxes(title_text="Pule / Blood Pressure")
+
         st.plotly_chart(fig)
 
 
@@ -129,18 +135,209 @@ def plot_bp(g, atts_to_plot):
     #                 })
 
 
-# TODO: FILL THESE OUT
 def plot_fitbit_heartrate(g, plot_attrs):
-    pass
+    query_str = f"""
+        PREFIX pghdc: <https://github.com/RenVit318/pghd/tree/main/src/vocab/pghd_connect/>
+        PREFIX fitbit: <https://github.com/RenVit318/pghd/tree/main/src/vocab/fitbit/>
+        PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+        PREFIX dc: <http://purl.org/dc/elements/1.1/>
+        SELECT ?date ?heartrate
+        WHERE {{
+            ?y pghdc:patient ?x ;
+               pghdc:collected_PGHD ?z . 
+            ?x pghdc:patientID '{plot_attrs['patient']}'^^xsd:int .
+            ?z fitbit:resting_heart_rate ?heartrate ;
+               dc:date ?date .
+        }}
+    """
+
+    pghdc = Namespace("https://github.com/RenVit318/pghd/tree/main/src/vocab/pghd_connect/")
+    fitbit= Namespace("https://github.com/RenVit318/pghd/tree/main/src/vocab/fitbit/")
+    dc    = Namespace("http://purl.org/dc/elements/1.1/")
+    
+    query = prepareQuery(query_str, initNs={"pghdc": pghdc, "fitbit": fitbit, "dc": dc, "xsd": XSD})
+    res = g.query(query)
+
+    N = len(res)
+    data = pd.DataFrame({
+        'date'  : np.zeros(N, dtype=object),
+        'heartrate' : np.zeros(N, dtype=float)
+    })
+
+    for i, row in enumerate(res):
+        data.loc[i, 'date']   = date.fromisoformat(row.date)
+        data.loc[i, 'heartrate']  = float(row.heartrate)
+
+    data = data.sort_values(by='date')
+
+    # Plotting
+    fig = px.line(data, x='date', y='heartrate', 
+                    title="Fitbit - Heartrate", markers=True)
+    
+    fig.update_xaxes(title_text="Date")
+    fig.update_yaxes(title_text="Resting Heart Rate")
+
+    st.plotly_chart(fig)
+
 
 def plot_fitbit_steps(g, plot_attrs):
-    pass
+    query_str = f"""
+        PREFIX pghdc: <https://github.com/RenVit318/pghd/tree/main/src/vocab/pghd_connect/>
+        PREFIX fitbit: <https://github.com/RenVit318/pghd/tree/main/src/vocab/fitbit/>
+        PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+        PREFIX dc: <http://purl.org/dc/elements/1.1/>
+        SELECT ?date ?steps
+        WHERE {{
+            ?y pghdc:patient ?x ;
+               pghdc:collected_PGHD ?z . 
+            ?x pghdc:patientID '{plot_attrs['patient']}'^^xsd:int .
+            ?z fitbit:steps ?steps;
+               dc:date ?date .
+        }}
+    """
+
+    pghdc = Namespace("https://github.com/RenVit318/pghd/tree/main/src/vocab/pghd_connect/")
+    fitbit= Namespace("https://github.com/RenVit318/pghd/tree/main/src/vocab/fitbit/")
+    dc    = Namespace("http://purl.org/dc/elements/1.1/")
+    
+    query = prepareQuery(query_str, initNs={"pghdc": pghdc, "fitbit": fitbit, "dc": dc, "xsd": XSD})
+    res = g.query(query)
+
+    N = len(res)
+    data = pd.DataFrame({
+        'date'  : np.zeros(N, dtype=object),
+        'steps' : np.zeros(N, dtype=float)
+    })
+
+    for i, row in enumerate(res):
+        data.loc[i, 'date']   = date.fromisoformat(row.date)
+        data.loc[i, 'steps']  = float(row.steps)
+
+    data = data.sort_values(by='date')
+
+    # Plotting
+    fig = px.line(data, x='date', y='steps', 
+                    title="Fitbit - Steps", markers=True)
+    
+    fig.update_xaxes(title_text="Date")
+    fig.update_yaxes(title_text="Step Count")
+
+    st.plotly_chart(fig)
+
 
 def plot_fitbit_activity(g, plot_attrs):
-    pass
+    query_str = f"""
+        PREFIX pghdc: <https://github.com/RenVit318/pghd/tree/main/src/vocab/pghd_connect/>
+        PREFIX fitbit: <https://github.com/RenVit318/pghd/tree/main/src/vocab/fitbit/>
+        PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+        PREFIX dc: <http://purl.org/dc/elements/1.1/>
+        SELECT ?date ?sedentary ?light ?fairly ?very
+        WHERE {{
+            ?y pghdc:patient ?x ;
+               pghdc:collected_PGHD ?z . 
+            ?x pghdc:patientID '{plot_attrs['patient']}'^^xsd:int .
+            ?z fitbit:lightly_active_minutes ?light ;
+               fitbit:sedentary_minutes ?sedentary;
+               fitbit:fairly_active_minutes ?fairly;
+               fitbit:very_active_minutes ?very;
+               dc:date ?date .
+        }}
+    """
+    
+    pghdc = Namespace("https://github.com/RenVit318/pghd/tree/main/src/vocab/pghd_connect/")
+    fitbit= Namespace("https://github.com/RenVit318/pghd/tree/main/src/vocab/fitbit/")
+    dc    = Namespace("http://purl.org/dc/elements/1.1/")
+    
+    query = prepareQuery(query_str, initNs={"pghdc": pghdc, "fitbit": fitbit, "dc": dc, "xsd": XSD})
+    res = g.query(query)
+
+    N = len(res)
+    st.write(N)
+    data = pd.DataFrame({
+        'date'   : np.zeros(N, dtype=object),
+        'sedentary' : np.zeros(N, dtype=float),
+        'light'  : np.zeros(N, dtype=float),
+        'fairly' : np.zeros(N, dtype=float),
+        'very'   : np.zeros(N, dtype=float),
+    })
+
+    for i, row in enumerate(res):
+        data.loc[i, 'date']   = date.fromisoformat(row.date)
+        data.loc[i, 'sedentary']  = float(row.sedentary)
+        data.loc[i, 'light']  = float(row.light)
+        data.loc[i, 'fairly']  = float(row.fairly)
+        data.loc[i, 'very']  = float(row.very)
+
+    data = data.sort_values(by='date')
+
+    # Plotting
+    ydata = ['sedentary', 'light', 'fairly', 'very']
+    fig = px.line(data, x='date', y=ydata, 
+                  labels={'sedentary': 'Sedentary', 'light': 'Light', 'fairly':'Fairly', 'very':'Very'},
+                  title="Fitbit - Activity", markers=True)
+    
+    fig.update_xaxes(title_text="Date")
+    fig.update_yaxes(title_text="Time spent (Minutes)")
+
+    st.plotly_chart(fig)
 
 def plot_fitbit_sleep(g, plot_attrs):
-    pass
+    query_str = f"""
+        PREFIX pghdc: <https://github.com/RenVit318/pghd/tree/main/src/vocab/pghd_connect/>
+        PREFIX fitbit: <https://github.com/RenVit318/pghd/tree/main/src/vocab/fitbit/>
+        PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+        PREFIX dc: <http://purl.org/dc/elements/1.1/>
+        SELECT ?date ?efficiency ?duration
+        WHERE {{
+            ?y pghdc:patient ?x ;
+               pghdc:collected_PGHD ?z . 
+            ?x pghdc:patientID '{plot_attrs['patient']}'^^xsd:int .
+            ?z fitbit:sleep_efficiency ?efficiency ;
+               fitbit:sleep_duration ?duration ;
+               dc:date ?date .
+        }}
+    """
+
+    pghdc = Namespace("https://github.com/RenVit318/pghd/tree/main/src/vocab/pghd_connect/")
+    fitbit= Namespace("https://github.com/RenVit318/pghd/tree/main/src/vocab/fitbit/")
+    dc    = Namespace("http://purl.org/dc/elements/1.1/")
+    
+    query = prepareQuery(query_str, initNs={"pghdc": pghdc, "fitbit": fitbit, "dc": dc, "xsd": XSD})
+    res = g.query(query)
+
+    N = len(res)
+    st.write(N)
+    data = pd.DataFrame({
+        'date'  : np.zeros(N, dtype=object),
+        'efficiency' : np.zeros(N, dtype=float),
+        'duration' : np.zeros(N, dtype=float) 
+    })
+
+    for i, row in enumerate(res):
+        data.loc[i, 'date']   = date.fromisoformat(row.date)
+        data.loc[i, 'efficiency']  = float(row.efficiency)
+        data.loc[i, 'duration'] = float(row.duration)
+
+    data = data.sort_values(by='date')
+
+    # Plotting
+    fig = make_subplots(specs=[[{"secondary_y": True}]])
+
+    fig.add_trace(go.Scatter(x=data['date'], y=data['efficiency'], 
+                             name='Sleep Efficiency'),
+                  secondary_y=False)
+    fig.add_trace(go.Scatter(x=data['date'], y=data['duration'], 
+                             name='Sleep Duration'),
+                  secondary_y=True)
+
+    
+    fig.update_layout(title_text="Fitbit - Sleep Data")
+    fig.update_xaxes(title_text="Date")
+    fig.update_yaxes(title_text="Sleep Efficiency (...)", secondary_y=False)
+    fig.update_yaxes(title_text="Sleep Duratoin (...)", secondary_y=True)
+    #fig.update_yaxes(title_text="Resting Heart Rate")
+
+    st.plotly_chart(fig)
 
 
 
