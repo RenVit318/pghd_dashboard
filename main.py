@@ -142,6 +142,8 @@ def main():
         st.warning('Please enter your username and password')
     elif st.session_state["authentication_status"]:
         authenticator.logout()
+        if st.sidebar.button(label='Reload Data'):
+            retrieve_data_cedar.clear()
         st.write(f'Welcome *{st.session_state["name"]}* to the PGHD dashboard')
 
         # Go into the true content
