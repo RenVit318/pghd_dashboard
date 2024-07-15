@@ -166,7 +166,10 @@ def plot_fitbit_heartrate(g, plot_attrs):
 
     for i, row in enumerate(res):
         data.loc[i, 'date']   = date.fromisoformat(row.date)
-        data.loc[i, 'heartrate']  = float(row.heartrate)
+        try:
+            data.loc[i, 'heartrate']  = float(row.heartrate) # Is set to None if no value present
+        except:
+            data.loc[i, 'heartrate'] = np.nan
 
     data = data.sort_values(by='date')
 
@@ -313,8 +316,14 @@ def plot_fitbit_sleep(g, plot_attrs):
 
     for i, row in enumerate(res):
         data.loc[i, 'date']   = date.fromisoformat(row.date)
-        data.loc[i, 'efficiency']  = float(row.efficiency)
-        data.loc[i, 'duration'] = float(row.duration)
+        try:
+            data.loc[i, 'efficiency']  = float(row.efficiency)
+        except:
+            data.loc[i, 'efficiency'] = np.nan
+        try:
+            data.loc[i, 'duration'] = float(row.duration)
+        except:
+            data.loc[i, 'duration'] = np.nan
 
     data = data.sort_values(by='date')
 
@@ -331,8 +340,8 @@ def plot_fitbit_sleep(g, plot_attrs):
     
     fig.update_layout(title_text="Fitbit - Sleep Data")
     fig.update_xaxes(title_text="Date")
-    fig.update_yaxes(title_text="Sleep Efficiency (...)", secondary_y=False)
-    fig.update_yaxes(title_text="Sleep Duratoin (...)", secondary_y=True)
+    fig.update_yaxes(title_text="Sleep Efficiency", secondary_y=False)
+    fig.update_yaxes(title_text="Sleep Duration (ms)", secondary_y=True)
     #fig.update_yaxes(title_text="Resting Heart Rate")
 
     st.plotly_chart(fig)
