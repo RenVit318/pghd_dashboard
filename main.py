@@ -76,7 +76,6 @@ def retrieve_data_cedar():
             patient_url = "https://resource.metadatacenter.org/template-instances/" + patient_reg_ID
             patient_response = requests.get(patient_url, headers=headers)
             patient_data = patient_response.json()
-            print(patient_data)
             g.parse(data=patient_data, format='json-ld')
 
         
