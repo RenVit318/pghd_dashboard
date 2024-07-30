@@ -132,8 +132,8 @@ def setup_sidebar(patients):
 
 
 def main(): 
-    authenticator = setup_authenticator()
-    name, authentication_status, username = authenticator.login(location='main')
+    #authenticator = setup_authenticator()
+    #name, authentication_status, username = authenticator.login(location='main')
 
 
     #if st.session_state["authentication_status"] is False:
